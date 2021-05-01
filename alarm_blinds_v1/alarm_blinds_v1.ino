@@ -27,7 +27,7 @@ namespace main{
   int iServoPin = 11;
   const bool DEBUG = true;
 
-  CBlindsServoSM servoSM(iServoPin, 10);
+  CBlindsServoSM servoSM(iServoPin, iDelay);
 }
 
 //////////////////////////////////
@@ -37,6 +37,7 @@ void setup() {
   using namespace main;
   customKeypad.begin();
   if (DEBUG) {Serial.begin(9600);}
+  servoSM.Setup();
 }
 
 //////////////////////////////////
@@ -44,6 +45,12 @@ void setup() {
 //////////////////////////////////
 void loop() {
   using namespace main;
+  delay(iDelay);
+  if(DEBUG)
+  {
+    Serial.println(servoSM.GetState());
+  }
+  servoSM.Update();
   customKeypad.tick();
 
   while(customKeypad.available()){

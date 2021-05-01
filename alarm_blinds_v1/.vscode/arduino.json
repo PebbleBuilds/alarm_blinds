@@ -1,5 +1,6 @@
 {
-    "configuration": "cpu=atmega328",
+    "configuration": "cpu=atmega328old",
     "board": "arduino:avr:nano",
-    "sketch": "alarm_blinds_v1.ino"
+    "sketch": "alarm_blinds_v1.ino",
+    "port": "COM3"
 }

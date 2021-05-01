@@ -17,13 +17,17 @@ CBlindsServoSM::CBlindsServoSM(int iServoPin, int iPeriod)
   m_iUpPosition = 0;
   m_iServoDir = m_iUpCmd;
 
-  m_servo = Servo();
-  m_servo.attach(iServoPin);
-  m_servo.write(m_iStillCmd);
+  Servo m_servo;
 }
 
 CBlindsServoSM::~CBlindsServoSM()
 {
+}
+
+void CBlindsServoSM::Setup()
+{
+  m_servo.attach(m_iServoPin);
+  m_servo.write(m_iStillCmd);
 }
 
 void CBlindsServoSM::Update()

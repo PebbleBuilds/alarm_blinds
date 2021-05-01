@@ -16,9 +16,11 @@ class CBlindsServoSM {
 
     void SetState(EState state) {m_state = state;}
     EState GetState() {return m_state;}
+    void Setup();
     void Update();
     void SetDownPosition() {m_iCurrentPosition = 0;}
     void SetUpPosition() {m_iUpPosition = m_iCurrentPosition;}
+    int GetPosition() {return m_iCurrentPosition;}
 
   private:
     Servo m_servo;
