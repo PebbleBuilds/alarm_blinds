@@ -1,3 +1,4 @@
+#include <RTClib.h>
 #include <Adafruit_Keypad.h>
 #include "BlindsServoSM.h"
 
@@ -7,7 +8,12 @@
 
 namespace main{
 
-    // ___________KEYPAD____________
+  // CONSTANTS
+  int iDelay = 10; // Delay period in ms
+  int iServoPin = 11;
+  const bool DEBUG = true;
+
+    // KEYPAD
   const int ROWS = 4; // rows
   const int COLS = 3; // columns
   //define the symbols on the buttons of the keypads
@@ -23,11 +29,11 @@ namespace main{
   //initialize an instance of class NewKeypad
   Adafruit_Keypad customKeypad = Adafruit_Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-  int iDelay = 10; // Delay period in ms
-  int iServoPin = 11;
-  const bool DEBUG = true;
-
+  // SERVO
   CBlindsServoSM servoSM(iServoPin, iDelay);
+
+  // RTC
+  DS1302 rtc(A3, A5, A4); // CE, SCK, SDA
 }
 
 //////////////////////////////////
@@ -38,6 +44,10 @@ void setup() {
   customKeypad.begin();
   if (DEBUG) {Serial.begin(9600);}
   servoSM.Setup();
+
+  // Initialize RTC and set date/time to compile time
+  rtc.begin();
+  rtc.adjust(DateTime(__DATE__, __TIME__));
 }
 
 //////////////////////////////////
