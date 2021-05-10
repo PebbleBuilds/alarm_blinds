@@ -48,7 +48,10 @@ void loop() {
   delay(iDelay);
   if(DEBUG)
   {
+    Serial.println("State:");
     Serial.println(servoSM.GetState());
+    Serial.println("Position:");
+    Serial.println(servoSM.GetPosition());
   }
   servoSM.Update();
   customKeypad.tick();
@@ -84,8 +87,8 @@ void loop() {
           break;
         // Auto up
         case '3':
-          if (DEBUG) {Serial.println("Auto up");}
-          servoSM.SetState(CBlindsServoSM::AUTO_UP);
+          if (DEBUG) {Serial.println("Auto up windup");}
+          servoSM.SetState(CBlindsServoSM::AUTO_UP_WINDUP);
           break;
         // Auto down
         case '6':

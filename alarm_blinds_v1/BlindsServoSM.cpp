@@ -42,15 +42,15 @@ void CBlindsServoSM::Update()
       if(m_iCurrentPosition <= 0)
       {
         SetState(NOT_MOVING);
-        break;
       }
+      break;
     case(AUTO_UP):
       m_iCurrCmd = m_iUpCmd;
       if(m_iCurrentPosition >= m_iUpPosition)
       {
         SetState(NOT_MOVING);
-        break;
       }
+      break;
     case(AUTO_UP_WINDUP):
       m_iCurrCmd = m_iDownCmd;
       if(m_iCurrentPosition <= -500)
