@@ -2,7 +2,7 @@
 
 class CBlindsServoSM {
   public:
-    CBlindsServoSM(int iServoPin, int iPeriod);
+    CBlindsServoSM(int iServoPin);
     ~CBlindsServoSM();
 
     enum EState {
@@ -25,7 +25,6 @@ class CBlindsServoSM {
   private:
     Servo m_servo;
     int m_iServoPin;
-    int m_iPeriod; // period to update with, in ms. delay enforced outside class.
 
     // Position and direction info. Position measured in ms travelled in that direction.
     int m_iCurrentPosition; // When iPosition is 0, blinds are down.
@@ -37,4 +36,7 @@ class CBlindsServoSM {
     int m_iStillCmd;
     int m_iCurrCmd;
     EState m_state;
+
+    unsigned long m_ulLastMicros;
+
 };

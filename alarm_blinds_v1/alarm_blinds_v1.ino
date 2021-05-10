@@ -30,7 +30,7 @@ namespace main{
   Adafruit_Keypad customKeypad = Adafruit_Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
   // SERVO
-  CBlindsServoSM servoSM(iServoPin, iDelay);
+  CBlindsServoSM servoSM(iServoPin);
 
   // RTC
   DS1302 rtc(A3, A5, A4); // CE, SCK, SDA
