@@ -26,7 +26,7 @@ class CBlindsServoSM {
     Servo m_servo;
     int m_iServoPin;
 
-    // Position and direction info. Position measured in ms travelled in that direction.
+    // Position and direction info. Position measured in us travelled in that direction.
     int m_iCurrentPosition; // When iPosition is 0, blinds are down.
     int m_iUpPosition; // When iPosition = iUpPosition, blinds are up.
     int m_iServoDir; // Current direction servo is moving in 

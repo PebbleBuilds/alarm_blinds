@@ -1,6 +1,7 @@
 #include <RTClib.h>
 #include <Adafruit_Keypad.h>
 #include "BlindsServoSM.h"
+#include <arduino-timer.h>
 
 //////////////////////////////////
 // Declarations
@@ -34,6 +35,7 @@ namespace main{
 
   // RTC
   DS1302 rtc(A3, A5, A4); // CE, SCK, SDA
+  static unsigned int uiMillisSinceLastAction; 
 }
 
 //////////////////////////////////
@@ -55,6 +57,8 @@ void setup() {
 //////////////////////////////////
 void loop() {
   using namespace main;
+
+  // Upkeep
   delay(iDelay);
   if(DEBUG)
   {
@@ -63,6 +67,27 @@ void loop() {
   servoSM.Update();
   customKeypad.tick();
 
+  // Check RTC
+  DateTime now = rtc.now();
+
+  // Only check if 100 seconds have passed since the last action
+  if(uiMillisSinceLastAction >= 100000)
+  {
+    if(now.hour() == 6 && now.minute() == 30)
+    {
+      servoSM.SetState(CBlindsServoSM::AUTO_UP_WINDUP);
+    }
+    if(now.hour() == 20 && now.minute() == 0)
+    {
+      servoSM.SetState(CBlindsServoSM::AUTO_DOWN);
+    }
+  }
+  else
+  {
+    uiMillisSinceLastAction += iDelay;
+  }
+
+  // Handle Keypad inputs
   while(customKeypad.available()){
     keypadEvent e = customKeypad.read();
     if(e.bit.EVENT == KEY_JUST_RELEASED) {
@@ -95,7 +120,7 @@ void loop() {
         // Auto up
         case '3':
           if (DEBUG) {Serial.println("Auto up");}
-          servoSM.SetState(CBlindsServoSM::AUTO_UP);
+          servoSM.SetState(CBlindsServoSM::AUTO_UP_WINDUP);
           break;
         // Auto down
         case '6':

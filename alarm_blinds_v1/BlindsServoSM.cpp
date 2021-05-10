@@ -53,7 +53,7 @@ void CBlindsServoSM::Update()
       }
     case(AUTO_UP_WINDUP):
       m_iCurrCmd = m_iDownCmd;
-      if(m_iCurrentPosition <= -500)
+      if(m_iCurrentPosition <= -500000)
       {
         SetState(AUTO_UP);
       }
