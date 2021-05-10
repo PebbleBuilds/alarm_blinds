@@ -1,5 +1,7 @@
+#include <RTClib.h>
 #include <Adafruit_Keypad.h>
 #include "BlindsServoSM.h"
+#include <arduino-timer.h>
 
 //////////////////////////////////
 // Declarations
@@ -7,7 +9,12 @@
 
 namespace main{
 
-    // ___________KEYPAD____________
+  // CONSTANTS
+  int iDelay = 10; // Delay period in ms
+  int iServoPin = 11;
+  const bool DEBUG = true;
+
+    // KEYPAD
   const int ROWS = 4; // rows
   const int COLS = 3; // columns
   //define the symbols on the buttons of the keypads
@@ -23,11 +30,12 @@ namespace main{
   //initialize an instance of class NewKeypad
   Adafruit_Keypad customKeypad = Adafruit_Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-  int iDelay = 10; // Delay period in ms
-  int iServoPin = 11;
-  const bool DEBUG = true;
+  // SERVO
+  CBlindsServoSM servoSM(iServoPin);
 
-  CBlindsServoSM servoSM(iServoPin, iDelay);
+  // RTC
+  DS1302 rtc(A3, A5, A4); // CE, SCK, SDA
+  static unsigned int uiMillisSinceLastAction; 
 }
 
 //////////////////////////////////
@@ -38,6 +46,10 @@ void setup() {
   customKeypad.begin();
   if (DEBUG) {Serial.begin(9600);}
   servoSM.Setup();
+
+  // Initialize RTC and set date/time to compile time
+  rtc.begin();
+  rtc.adjust(DateTime(__DATE__, __TIME__));
 }
 
 //////////////////////////////////
@@ -45,6 +57,8 @@ void setup() {
 //////////////////////////////////
 void loop() {
   using namespace main;
+
+  // Upkeep
   delay(iDelay);
   if(DEBUG)
   {
@@ -56,6 +70,27 @@ void loop() {
   servoSM.Update();
   customKeypad.tick();
 
+  // Check RTC
+  DateTime now = rtc.now();
+
+  // Only check if 100 seconds have passed since the last action
+  if(uiMillisSinceLastAction >= 100000)
+  {
+    if(now.hour() == 6 && now.minute() == 30)
+    {
+      servoSM.SetState(CBlindsServoSM::AUTO_UP_WINDUP);
+    }
+    if(now.hour() == 20 && now.minute() == 0)
+    {
+      servoSM.SetState(CBlindsServoSM::AUTO_DOWN);
+    }
+  }
+  else
+  {
+    uiMillisSinceLastAction += iDelay;
+  }
+
+  // Handle Keypad inputs
   while(customKeypad.available()){
     keypadEvent e = customKeypad.read();
     if(e.bit.EVENT == KEY_JUST_RELEASED) {

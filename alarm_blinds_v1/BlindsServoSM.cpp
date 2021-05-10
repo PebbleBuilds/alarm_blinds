@@ -1,10 +1,9 @@
 #include "BlindsServoSM.h"
-#include <Servo.h>
+#include <arduino-timer.h>
 
-CBlindsServoSM::CBlindsServoSM(int iServoPin, int iPeriod)
+CBlindsServoSM::CBlindsServoSM(int iServoPin)
 {
   m_iServoPin = iServoPin;
-  m_iPeriod = iPeriod;
 
   m_state = NOT_MOVING;
 
@@ -32,6 +31,7 @@ void CBlindsServoSM::Setup()
 
 void CBlindsServoSM::Update()
 {
+  // Handle SM
   switch(m_state)
   {
     case(NOT_MOVING):
@@ -53,7 +53,7 @@ void CBlindsServoSM::Update()
       break;
     case(AUTO_UP_WINDUP):
       m_iCurrCmd = m_iDownCmd;
-      if(m_iCurrentPosition <= -500)
+      if(m_iCurrentPosition <= -500000)
       {
         SetState(AUTO_UP);
       }
@@ -66,13 +66,30 @@ void CBlindsServoSM::Update()
       break;
   }
 
+  // Write to servo based on state
   m_servo.write(m_iCurrCmd);
+
+  // Calculate time elapsed since last run
+  unsigned long ulCurrentMicros = micros();
+  unsigned long ulMicrosElapsed;
+  if(ulCurrentMicros > m_ulLastMicros) // check for overflow
+  {
+    ulMicrosElapsed = ulCurrentMicros - m_ulLastMicros;
+  }
+  else
+  {
+    ulMicrosElapsed = 0; // just skip updating if there was an overflow
+  }
+  m_ulLastMicros = ulCurrentMicros;
+  int iMicrosElapsed = int(ulMicrosElapsed);
+
+  // Update "position" based on time elapsed
   if (m_iCurrCmd == m_iDownCmd)
   {
-    m_iCurrentPosition -= m_iPeriod;
+    m_iCurrentPosition -= iMicrosElapsed;
   }
   if (m_iCurrCmd == m_iUpCmd)
   {
-    m_iCurrentPosition += m_iPeriod;
+    m_iCurrentPosition += iMicrosElapsed;
   }
 }
