@@ -2,6 +2,7 @@
 #include <Adafruit_Keypad.h>
 #include "BlindsServoSM.h"
 #include <arduino-timer.h>
+#include <Wire.h>
 
 //////////////////////////////////
 // Declarations
@@ -34,8 +35,11 @@ namespace main{
   CBlindsServoSM servoSM(iServoPin);
 
   // RTC
-  DS1302 rtc(A3, A5, A4); // CE, SCK, SDA
-  static unsigned int uiMillisSinceLastAction; 
+  // DS1302 rtc(A3, A5, A4); // CE, SCK, SDA
+  // static unsigned int uiMillisSinceLastAction; 
+
+  // Alarm
+  const int alarmPin = A2;
 }
 
 //////////////////////////////////
@@ -43,13 +47,20 @@ namespace main{
 //////////////////////////////////
 void setup() {
   using namespace main;
+  Wire.begin();
   customKeypad.begin();
   if (DEBUG) {Serial.begin(9600);}
   servoSM.Setup();
 
   // Initialize RTC and set date/time to compile time
-  rtc.begin();
-  rtc.adjust(DateTime(__DATE__, __TIME__));
+  //rtc.begin();
+  //if (!rtc.isrunning())
+  //{
+  //  rtc.adjust(DateTime(2014,1,1,3,0,0));
+  //}
+
+  // Alarm
+  pinMode(alarmPin, INPUT);
 }
 
 //////////////////////////////////
@@ -60,34 +71,49 @@ void loop() {
 
   // Upkeep
   delay(iDelay);
+  servoSM.Update();
+  customKeypad.tick();
+
+  // Check RTC
+  // DateTime now = rtc.now();
+
   if(DEBUG)
   {
     Serial.println("State:");
     Serial.println(servoSM.GetState());
     Serial.println("Position:");
     Serial.println(servoSM.GetPosition());
+    //Serial.print("RTC time:");
+    //Serial.print(now.hour(), DEC);
+    //Serial.print(":");
+    //Serial.println(now.minute(), DEC);
+    //Serial.println("RTC running?");
+    //Serial.println(rtc.isrunning());
+    Serial.println("Alarm analog read:");
+    Serial.println(analogRead(alarmPin));
   }
-  servoSM.Update();
-  customKeypad.tick();
-
-  // Check RTC
-  DateTime now = rtc.now();
-
+  
   // Only check if 100 seconds have passed since the last action
-  if(uiMillisSinceLastAction >= 100000)
+  //if(uiMillisSinceLastAction >= 100000)
+  //{
+  //  if(now.hour() == 6 && now.minute() == 30)
+  //  {
+  //    servoSM.SetState(CBlindsServoSM::AUTO_UP_WINDUP);
+  //  }
+  //  if(now.hour() == 20 && now.minute() == 0)
+  //  {
+  //    servoSM.SetState(CBlindsServoSM::AUTO_DOWN);
+  //  }
+  //}
+  //else
+  //{
+  //  uiMillisSinceLastAction += iDelay;
+  //}
+
+  // Check alarm pin
+  if(analogRead(A2) >= 50)
   {
-    if(now.hour() == 6 && now.minute() == 30)
-    {
-      servoSM.SetState(CBlindsServoSM::AUTO_UP_WINDUP);
-    }
-    if(now.hour() == 20 && now.minute() == 0)
-    {
-      servoSM.SetState(CBlindsServoSM::AUTO_DOWN);
-    }
-  }
-  else
-  {
-    uiMillisSinceLastAction += iDelay;
+    servoSM.SetState(CBlindsServoSM::AUTO_UP_WINDUP);
   }
 
   // Handle Keypad inputs

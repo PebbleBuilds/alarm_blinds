@@ -81,15 +81,14 @@ void CBlindsServoSM::Update()
     ulMicrosElapsed = 0; // just skip updating if there was an overflow
   }
   m_ulLastMicros = ulCurrentMicros;
-  int iMicrosElapsed = int(ulMicrosElapsed);
 
   // Update "position" based on time elapsed
   if (m_iCurrCmd == m_iDownCmd)
   {
-    m_iCurrentPosition -= iMicrosElapsed;
+    m_iCurrentPosition -= ulMicrosElapsed;
   }
   if (m_iCurrCmd == m_iUpCmd)
   {
-    m_iCurrentPosition += iMicrosElapsed;
+    m_iCurrentPosition += ulMicrosElapsed;
   }
 }
