@@ -20,7 +20,7 @@ class CBlindsServoSM {
     void Update();
     void SetDownPosition() {m_iCurrentPosition = 0;}
     void SetUpPosition() {m_iUpPosition = m_iCurrentPosition;}
-    int GetPosition() {return m_iCurrentPosition;}
+    long GetPosition() {return m_iCurrentPosition;}
 
   private:
     Servo m_servo;
